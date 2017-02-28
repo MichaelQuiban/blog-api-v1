@@ -36,3 +36,31 @@ app.post('/blog-posts', jsonParser, (req, res) => {
   const item = BlogPosts.create(req.body.id, req.body.title, req.body.content, req.body.author, req.body.publishDate);
   res.status(201).json(item);
 });
+
+app.put('blog-posts:id', jsonParser, (req, res) => {
+  const requiredFields = ['id', 'title', 'content','author','publishDate'];
+  for (let i=0; i<requiredFields.length; i++) {
+    const field = requiredFields[i];
+    if (!(field in req.body)) {
+      const message = `Missing \`${field}\` in request body`
+      console.error(message);
+      return res.status(400).send(message);
+    }
+  }
+  if (req.params.id !== req.body.id) {
+    const message = (
+      `Request path id (${req.params.id}) and request body id `
+      `(${req.body.id}) must match`);
+    console.error(message);
+    return res.status(400).send(message);
+  }
+  console.log(`Updating Blog posts \`${req.params.id}\``);
+  const updatedItem = BlogPosts.update({
+    id: req.params.id,
+    title: req.body.title,
+    content: req.body.content,
+    author: req.author.content,
+    publishDate: req.publishDate.content
+  });
+  res.status(204).json(updatedItem);
+});
