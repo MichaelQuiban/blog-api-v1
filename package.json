@@ -16,5 +16,11 @@
   "bugs": {
     "url": "https://github.com/TheSaintMichael/blog-api-v1/issues"
   },
-  "homepage": "https://github.com/TheSaintMichael/blog-api-v1#readme"
+  "homepage": "https://github.com/TheSaintMichael/blog-api-v1#readme",
+  "dependencies": {
+    "body-parser": "^1.16.1",
+    "express": "^4.14.1",
+    "morgan": "^1.8.1",
+    "uuid": "^3.0.1"
+  }
 }
