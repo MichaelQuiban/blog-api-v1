@@ -74,3 +74,7 @@ app.put('blog-posts:id', jsonParser, (req, res) => {
   });
   res.status(204).json(updatedItem);
 });
+
+app.listen(process.env.PORT || 8080, () => {
+	console.log(`This app is listening on Michael's Blog Port ${process.env.PORT || 8080}`);
+})
