@@ -15,6 +15,14 @@ app.use(morgan('common'));
 BlogPosts.create('The Happy Man','He was a very happy man', 'By the Sad Man', '12-11-92');
 BlogPosts.create('The Sad Man','He was a very sad man', 'By the Happy Man', '05-11-99');
 
+// when DELETE request comes in with an id in path,
+// try to delete that item from Blog posts.
+app.delete('/blog-posts', jsonParser, (req,res) => {
+	BlogPosts.delete(req.params.id);
+	console.log(`Deleted Blog post with an id of \`${req.params.id}\``);
+	res.status(204).end();
+});
+
 //When the root of this router is called with GET..
 // Return Blog posts.
 app.get('/blog-posts', jsonParser, (req, res) => {
@@ -22,7 +30,7 @@ app.get('/blog-posts', jsonParser, (req, res) => {
 });
 
 app.post('/blog-posts', jsonParser, (req, res) => {
-	 // ensure criteria meets blog posts.
+//Ensure criteria meets blog posts.
   const requiredFields = ['id', 'title','content','author','publishDate'];
   for (let i=0; i<requiredFields.length; i++) {
     const field = requiredFields[i];
@@ -37,6 +45,8 @@ app.post('/blog-posts', jsonParser, (req, res) => {
   res.status(201).json(item);
 });
 
+//When put request comes in, ensure fields are meeting min.
+//If there are issues with min. fields, throw a 400 error.
 app.put('blog-posts:id', jsonParser, (req, res) => {
   const requiredFields = ['id', 'title', 'content','author','publishDate'];
   for (let i=0; i<requiredFields.length; i++) {
