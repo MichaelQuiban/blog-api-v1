@@ -21,7 +21,7 @@ app.get('/blog-posts', jsonParser, (req, res) => {
 	res.json(BlogPosts.get());
 });
 
-app.post('/blog-posts', jsonParser, (req, res) => {
+app.post('/blog-posts',jsonParser, (req, res) => {
 //Ensure criteria meets blog posts.
   const requiredFields = ['id', 'title','content','author','publishDate'];
   for (let i=0; i<requiredFields.length; i++) {
@@ -39,7 +39,7 @@ app.post('/blog-posts', jsonParser, (req, res) => {
 
 // when DELETE request comes in with an id in path,
 // try to delete that item from Blog posts.
-app.delete('/blog-posts', jsonParser, (req,res) => {
+app.delete('/blog-posts/:id', jsonParser, (req,res) => {
 	BlogPosts.delete(req.params.id);
 	console.log(`Deleted Blog post with an id of \`${req.params.id}\``);
 	res.status(204).end();
@@ -48,7 +48,7 @@ app.delete('/blog-posts', jsonParser, (req,res) => {
 
 //When put request comes in, ensure fields are meeting min.
 //If there are issues with min. fields, throw a 400 error.
-app.put('blog-posts:id', jsonParser, (req, res) => {
+app.put('/blog-posts/:id', jsonParser, (req, res) => {
   const requiredFields = ['id', 'title', 'content','author','publishDate'];
   for (let i=0; i<requiredFields.length; i++) {
     const field = requiredFields[i];
@@ -70,10 +70,11 @@ app.put('blog-posts:id', jsonParser, (req, res) => {
     id: req.params.id,
     title: req.body.title,
     content: req.body.content,
-    author: req.author.content,
-    publishDate: req.publishDate.content
+    author: req.body.author,
+    publishDate: req.body.publishDate
   });
-  res.status(204).json(updatedItem);
+  console.log(updatedItem);
+  res.status(200).json(updatedItem);
 });
 
 app.listen(process.env.PORT || 8080, () => {
