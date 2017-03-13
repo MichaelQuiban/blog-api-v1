@@ -8,6 +8,33 @@ const {BlogPosts} = require('./models');
 const jsonParser = bodyParser.json();
 const app = express();
 
+let server;
+
+function runServer() {
+  const port = process.env.PORT || 8080;
+  return new Promise((resolve, reject) => {
+    server = app.listen(port, () => {
+      console.log(`Your app is listening on port ${port}`);
+      resolve(server);
+    }).on('error', err => {
+      reject(err)
+    });
+  });
+
+  function closeServer() {
+  return new Promise((resolve, reject) => {
+    console.log('Closing server');
+    server.close(err => {
+      if (err) {
+        reject(err);
+        // so we don't also call `resolve()`
+        return;
+      }
+      resolve();
+    });
+  });
+}
+
 //Log the HTTP layer
 app.use(morgan('common'));
 
@@ -76,7 +103,3 @@ app.put('/blog-posts/:id', jsonParser, (req, res) => {
   console.log(updatedItem);
   res.status(200).json(updatedItem);
 });
-
-app.listen(process.env.PORT || 8080, () => {
-	console.log(`This app is listening on Michael's Blog Port ${process.env.PORT || 8080}`);
-})
