@@ -35,11 +35,13 @@ describe('Blog Posts', function() {
 			//ID, TITLE, CONTENT, AUTHOR, PUBLISHDATE.
 			const expectedKeys = ['id', 'title', 'content', 'author', 'publishDate'];
 
+			//Put the body of the object through one more hurdle.
 			res.body.forEach(function(item) {
 				item.should.be.a('object');
 				item.should.include.keys(expectedKeys);
 			});
 		});
-
 	});
+
+
 });
