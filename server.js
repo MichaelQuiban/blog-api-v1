@@ -45,7 +45,7 @@ BlogPosts.create('The Sad Man','He was a very sad man', 'By the Happy Man', '05-
 //When the root of this router is called with GET..
 // Return Blog posts.
 app.get('/blog-posts', jsonParser, (req, res) => {
-	res.json(BlogPosts.get());
+  res.json(BlogPosts.get());
 });
 
 app.post('/blog-posts',jsonParser, (req, res) => {
@@ -67,9 +67,9 @@ app.post('/blog-posts',jsonParser, (req, res) => {
 // when DELETE request comes in with an id in path,
 // try to delete that item from Blog posts.
 app.delete('/blog-posts/:id', jsonParser, (req,res) => {
-	BlogPosts.delete(req.params.id);
-	console.log(`Deleted Blog post with an id of \`${req.params.id}\``);
-	res.status(204).end();
+  BlogPosts.delete(req.params.id);
+  console.log(`Deleted Blog post with an id of \`${req.params.id}\``);
+  res.status(204).end();
 });
 
 
@@ -102,4 +102,5 @@ app.put('/blog-posts/:id', jsonParser, (req, res) => {
   });
   console.log(updatedItem);
   res.status(200).json(updatedItem);
-});
+}):
+
