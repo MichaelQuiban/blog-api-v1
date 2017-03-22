@@ -43,7 +43,7 @@ BlogPosts.create('The Happy Man','He was a very happy man', 'By the Sad Man', '1
 BlogPosts.create('The Sad Man','He was a very sad man', 'By the Happy Man', '05-11-99');
 
 //When the root of this router is called with GET..
-// Return Blog posts.
+// Return blog posts.
 app.get('/blog-posts', jsonParser, (req, res) => {
   res.json(BlogPosts.get());
 });
@@ -83,15 +83,15 @@ app.put('/blog-posts/:id', jsonParser, (req, res) => {
       const message = `Missing \`${field}\` in request body`
       console.error(message);
       return res.status(400).send(message);
-    }
-  }
+    };
+  };
   if (req.params.id !== req.body.id) {
     const message = (
       `Request path id (${req.params.id}) and request body id `
       `(${req.body.id}) must match`);
     console.error(message);
     return res.status(400).send(message);
-  }
+  };
   console.log(`Updating Blog posts \`${req.params.id}\``);
   const updatedItem = BlogPosts.update({
     id: req.params.id,
@@ -102,5 +102,6 @@ app.put('/blog-posts/:id', jsonParser, (req, res) => {
   });
   console.log(updatedItem);
   res.status(200).json(updatedItem);
-}):
+});
 
+};
