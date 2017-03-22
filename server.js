@@ -12,6 +12,7 @@ const app = express();
 
 let server;
 
+//This function starts our server and returns a promise.
 function runServer() {
     const port = process.env.PORT || 8080;
     return new Promise((resolve, reject) => {
@@ -37,7 +38,7 @@ function runServer() {
         });
     }
 
-    //Log the HTTP layer
+    //Log the HTTP layer.
     app.use(morgan('common'));
 
     //Create blog posts to return some data to view.
@@ -45,9 +46,11 @@ function runServer() {
     BlogPosts.create('The Sad Man', 'He was a very sad man', 'By the Happy Man', '05-11-99');
 
     //When the root of this router is called with GET..
-    // Return blog posts.
+    // Return Blog posts.
     app.get('/blog-posts', jsonParser, (req, res) => {
         res.json(BlogPosts.get());
+        const message = `\`${BlogPosts}\` Gathered`
+        return res.status(200).send(message);
     });
 
     app.post('/blog-posts', jsonParser, (req, res) => {
@@ -85,15 +88,15 @@ function runServer() {
                 const message = `Missing \`${field}\` in request body`
                 console.error(message);
                 return res.status(400).send(message);
-            };
-        };
+            }
+        }
         if (req.params.id !== req.body.id) {
             const message = (
                 `Request path id (${req.params.id}) and request body id `
                 `(${req.body.id}) must match`);
             console.error(message);
             return res.status(400).send(message);
-        };
+        }
         console.log(`Updating Blog posts \`${req.params.id}\``);
         const updatedItem = BlogPosts.update({
             id: req.params.id,
@@ -105,5 +108,4 @@ function runServer() {
         console.log(updatedItem);
         res.status(200).json(updatedItem);
     });
-
 };
