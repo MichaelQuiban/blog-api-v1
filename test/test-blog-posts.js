@@ -100,7 +100,7 @@ it('should update blog posts during PUT requests', function(done) {
 
 it('Should delete posts on DELETE', function(done) {
 	chai.request(app)
-	.get('blog-psots')
+	.get('blog-posts')
 	.end(function(err, res) {
 		chai.request(app)
 		.delete(`/blog-posts/${res.body[0].id}`)
