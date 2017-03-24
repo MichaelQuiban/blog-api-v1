@@ -2,6 +2,7 @@ const express = require('express');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const router = express.Router();
+const {runServer, closeServer} = require('../server');
 
 const {
     BlogPosts
@@ -108,4 +109,5 @@ function runServer() {
         console.log(updatedItem);
         res.status(200).json(updatedItem);
     });
+    module.exports = {app, runServer, closeServer}; 
 };
