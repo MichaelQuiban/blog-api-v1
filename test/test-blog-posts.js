@@ -38,12 +38,15 @@ describe('Blog Posts', function() {
                     item.should.have.all.keys(
                         'title', 'content', 'author', 'publishDate');
                 });
-            });
-        done();
+                done();
+            })
     });
+
+
     //Assure our POST response mimics the template of our body content.
     it('should list users on POST', function(done) {
-        const postExample = {
+        let postExample = {
+            id: '12345',
             title: 'Test Title',
             content: 'The content would be placed here.',
             author: 'Dr. Suess',
@@ -51,62 +54,63 @@ describe('Blog Posts', function() {
         };
 
         const expectedKey = ['id'].concat(Object.keys(postExample));
+
+        chai.request(app)
+            .post('/blog-posts')
+            .send(postExample)
+            .then(function(err, res) {
+                res.should.have.status(201); //https://httpstatuses.com/201
+                res.should.be.json;
+                res.body.should.be.a('object');
+                res.body.should.have.all.keys(expectedKey);
+                res.body.title.should.equal(postExample.title);
+                res.body.content.should.equal(postExample.content);
+                res.body.author.should.equal(postExample).author;
+                done();
+            })
     });
 
-    chai.request(app)
-        .post('/blog-posts')
-        .send(postExample)
-        .then(function(err, res) {
-            res.should.have.status(201); //https://httpstatuses.com/201
-            res.should.be.json;
-            res.body.should.be.a('object');
-            res.body.should.have.all.keys(expectedKey);
-            res.body.title.should.equal(postExample.title);
-            res.body.content.should.equal(postExample.content);
-            res.body.author.should.equal(postExample).author;
-        })
-    done();
-});
+    it('should log error if POST req. does not meet requirements',function(done) {
+        const badRequest = {};
+        chai.request(app)
+            .post('/blog-posts')
+            .send(badRequest)
+            .end(function(err, res) {
+                res.should.have.status(400) //https://httpstatuses.com/400
+                done();
+            })
+    });
 
-it('should log error if POST req. does not meet requirements',function(done) {
-    const badRequest = {};
-    chai.request(app)
-        .post('/blog-posts')
-        .send(badRequest)
-        .end(function(err, res) {
-            res.should.have.status(400) //https://httpstatuses.com/400
-        })
-    done();
-});
 
-it('should update blog posts during PUT requests', function(done) {
-	chai.request(app)
-	.get('/blog-posts')
-	.then(function(err, res) {
-		const updatedPost = Object.assign(res.body[0], {
-			title: 'Connect the dots',
-			content: 'Test Test Test'
-		});
-		chai.request(app)
-		.put(`/blog-posts/${res.body[0].id}`)
-		.send(updatedPost)
-		.then(function(err, res) {
-			res.should.have.status(204); //https://httpstatuses.com/204
-			res.should.be.json
-		});
-	})
-	done();
-});
+    it('should update blog posts during PUT requests', function(done) {
+    	chai.request(app)
+    	.get('/blog-posts')
+    	.then(function(err, res) {
+    		const updatedPost = Object.assign(res.body[0], {
+    			title: 'Connect the dots',
+    			content: 'Test Test Test'
+    		});
+    		chai.request(app)
+    		.put(`/blog-posts/${res.body[0].id}`)
+    		.send(updatedPost)
+    		.then(function(err, res) {
+    			res.should.have.status(204); //https://httpstatuses.com/204
+    			res.should.be.json
+                done();            
+    		});
+    	})
+    });
 
-it('Should delete posts on DELETE', function(done) {
-	chai.request(app)
-	.get('blog-posts')
-	.end(function(err, res) {
-		chai.request(app)
-		.delete(`/blog-posts/${res.body[0].id}`)
-		.end(function(err, res) {
-			res.shoud.have.status(204); //https://httpstatuses.com/204
-		});
-	})
-	done();
+    it('Should delete posts on DELETE', function(done) {
+    	chai.request(app)
+    	.get('blog-posts')
+    	.end(function(err, res) {
+    		chai.request(app)
+    		.delete(`/blog-posts/${res.body[0].id}`)
+    		.end(function(err, res) {
+    			res.shoud.have.status(204); //https://httpstatuses.com/204
+                done();
+    		});
+    	})
+    });
 });

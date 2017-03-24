@@ -2,11 +2,8 @@ const express = require('express');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const router = express.Router();
-const {runServer, closeServer} = require('../server');
 
-const {
-    BlogPosts
-} = require('./models');
+const {BlogPosts} = require('./models');
 
 const jsonParser = bodyParser.json();
 const app = express();
@@ -24,20 +21,21 @@ function runServer() {
             reject(err)
         });
     });
+}
 
-    function closeServer() {
-        return new Promise((resolve, reject) => {
-            console.log('Closing server');
-            server.close(err => {
-                if (err) {
-                    reject(err);
-                    // so we don't also call `resolve()`
-                    return;
-                }
-                resolve();
-            });
+function closeServer() {
+    return new Promise((resolve, reject) => {
+        console.log('Closing server');
+        server.close(err => {
+            if (err) {
+                reject(err);
+                // so we don't also call `resolve()`
+                return;
+            }
+            resolve();
         });
-    }
+    });
+}
 
     //Log the HTTP layer.
     app.use(morgan('common'));
@@ -49,9 +47,8 @@ function runServer() {
     //When the root of this router is called with GET..
     // Return Blog posts.
     app.get('/blog-posts', jsonParser, (req, res) => {
-        res.json(BlogPosts.get());
-        const message = `\`${BlogPosts}\` Gathered`
-        return res.status(200).send(message);
+
+        return res.status(200).json(BlogPosts.get());
     });
 
     app.post('/blog-posts', jsonParser, (req, res) => {
@@ -109,5 +106,9 @@ function runServer() {
         console.log(updatedItem);
         res.status(200).json(updatedItem);
     });
+
+    if (require.main === module) {
+      runServer().catch(err => console.error(err));
+    };    
+
     module.exports = {app, runServer, closeServer}; 
-};
