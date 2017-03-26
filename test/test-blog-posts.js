@@ -27,19 +27,19 @@ describe('Blog Posts', function() {
 
     //Assure our GET response passes through each hurdle provided below.
     it('should list users on GET', function() {
-        return chai.request(server)
+        return chai.request(app)
             .get('/blog-posts')
             .then(function(res) {
                 res.should.have.status(200); //https://httpstatuses.com/200
                 res.should.be.json;
-                res.body.length.should.be.a('array');
+                res.body.should.be.a('array');
                 res.body.forEach(function(item) {
                     item.should.be.a('object');
                     item.should.have.all.keys(
-                        'title', 'content', 'author', 'publishDate');
+                        'title', 'content', 'author', 'publishDate', 'id');
                 });
-                done();
             })
+            done();
     });
 
 
@@ -66,8 +66,8 @@ describe('Blog Posts', function() {
                 res.body.title.should.equal(postExample.title);
                 res.body.content.should.equal(postExample.content);
                 res.body.author.should.equal(postExample).author;
-                done();
             })
+            done();
     });
 
     it('should log error if POST req. does not meet requirements',function(done) {
@@ -77,8 +77,8 @@ describe('Blog Posts', function() {
             .send(badRequest)
             .end(function(err, res) {
                 res.should.have.status(400) //https://httpstatuses.com/400
-                done();
             })
+            done();
     });
 
 
@@ -95,10 +95,10 @@ describe('Blog Posts', function() {
     		.send(updatedPost)
     		.then(function(err, res) {
     			res.should.have.status(204); //https://httpstatuses.com/204
-    			res.should.be.json
-                done();            
+    			res.should.be.json           
     		});
     	})
+    	done();
     });
 
     it('Should delete posts on DELETE', function(done) {
@@ -109,8 +109,8 @@ describe('Blog Posts', function() {
     		.delete(`/blog-posts/${res.body[0].id}`)
     		.end(function(err, res) {
     			res.shoud.have.status(204); //https://httpstatuses.com/204
-                done();
     		});
     	})
+    	done();
     });
 });

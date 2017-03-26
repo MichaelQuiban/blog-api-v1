@@ -47,7 +47,6 @@ function closeServer() {
     //When the root of this router is called with GET..
     // Return Blog posts.
     app.get('/blog-posts', jsonParser, (req, res) => {
-
         return res.status(200).json(BlogPosts.get());
     });
 
