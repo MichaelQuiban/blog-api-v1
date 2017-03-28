@@ -107,7 +107,7 @@ function closeServer() {
         const requiredFields = ['id', 'title', 'content', 'author', 'publishDate'];
         for (let i = 0; i < requiredFields.length; i++) {
             const field = requiredFields[i];
-            if (!(field in req.body)) {
+            if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
                 const message = `Missing \`${field}\` in request body`
                 console.error(message);
                 return res.status(400).send(message);
