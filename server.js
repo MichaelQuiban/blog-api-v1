@@ -86,15 +86,18 @@ function closeServer() {
         .catch(err => {
             console.log(err);
             res.status(500).json({error: 'This could not be fulfilled at this time.'});
-        })
+        });
+
     });
 
-    // when DELETE request comes in with an id in path,
-    // try to delete that item from Blog posts.
+    //Find an id and remove it.
     app.delete('/blog-posts/:id', jsonParser, (req, res) => {
-        BlogPosts.delete(req.params.id);
-        console.log(`Deleted Blog post with an id of \`${req.params.id}\``);
-        res.status(204).end();
+        BlogPost
+        .findByIdAndRemove(req.params.id) //http://mongoosejs.com/docs/api.html
+        .exec()
+        .then(() => {
+            res.status(204).json({message: 'request completed.'});
+        });
     });
 
 
