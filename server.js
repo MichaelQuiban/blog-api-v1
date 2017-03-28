@@ -1,14 +1,18 @@
 const express = require('express');
+const mongooge = require ('mongoose');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const router = express.Router();
 
+const {DATABASE_URL, PORT} = require('./config');
 const {BlogPosts} = require('./models');
 
 const jsonParser = bodyParser.json();
 const app = express();
 
 let server;
+
+mongoose.Promise = global.Promise;
 
 //This function starts our server and returns a promise.
 function runServer() {
@@ -47,7 +51,16 @@ function closeServer() {
     //When the root of this router is called with GET..
     // Return Blog posts.
     app.get('/blog-posts', jsonParser, (req, res) => {
-        return res.status(200).json(BlogPosts.get());
+        BlogPosts
+        .find()
+        .exec
+        .then(posts => {
+            res.json(posts.map(post => post.apiRepr()));
+        })
+        .catch(err =>)
+        console.log(err);
+        //If the document isn't found return a 500 error.
+         res.status(500).json({error: ' request could not be fulfilled at this time.'}) // http://www.checkupdown.com/status/E500.html
     });
 
     app.post('/blog-posts', jsonParser, (req, res) => {
