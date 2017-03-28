@@ -108,7 +108,7 @@ function closeServer() {
         for (let i = 0; i < requiredFields.length; i++) {
             const field = requiredFields[i];
             if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
-                const message = `Missing \`${field}\` in request body`
+                const message = `Path ID and request body id values must match`
                 console.error(message);
                 return res.status(400).send(message);
             }
