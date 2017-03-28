@@ -48,19 +48,20 @@ function closeServer() {
     BlogPosts.create('The Happy Man', 'He was a very happy man', 'By the Sad Man', '12-11-92');
     BlogPosts.create('The Sad Man', 'He was a very sad man', 'By the Happy Man', '05-11-99');
 
-    //When the root of this router is called with GET..
-    // Return Blog posts.
+    //When the root of this router is called with GET.. return posts.
+    
     app.get('/blog-posts', jsonParser, (req, res) => {
-        BlogPosts
+        BlogPost
         .find()
         .exec
         .then(posts => {
             res.json(posts.map(post => post.apiRepr()));
         })
-        .catch(err =>)
-        console.log(err);
+        .catch(err => {
+         console.log(err);
         //If the document isn't found return a 500 error.
          res.status(500).json({error: ' request could not be fulfilled at this time.'}) // http://www.checkupdown.com/status/E500.html
+        });
     });
 
     app.post('/blog-posts', jsonParser, (req, res) => {
@@ -75,8 +76,17 @@ function closeServer() {
             }
         }
 
-        const item = BlogPosts.create(req.body.id, req.body.title, req.body.content, req.body.author, req.body.publishDate);
-        res.status(201).json(item);
+        BlogPost
+        .create({
+            title: req.body.title,
+            content: req.body.content,
+            author: req.body.author
+        })
+        .then(BlogPost => res.status(201).json(blogPost.apiRepr()))
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({error: 'This could not be fulfilled at this time.'});
+        })
     });
 
     // when DELETE request comes in with an id in path,
