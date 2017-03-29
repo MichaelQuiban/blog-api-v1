@@ -1,5 +1,5 @@
 const express = require('express');
-const mongooge = require ('mongoose');
+const mongoose = require ('mongoose');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const router = express.Router();
@@ -44,14 +44,10 @@ function closeServer() {
     //Log the HTTP layer.
     app.use(morgan('common'));
 
-    //Create blog posts to return some data to view.
-    BlogPosts.create('The Happy Man', 'He was a very happy man', 'By the Sad Man', '12-11-92');
-    BlogPosts.create('The Sad Man', 'He was a very sad man', 'By the Happy Man', '05-11-99');
-
     //When the root of this router is called with GET.. return posts.
     
     app.get('/blog-posts', jsonParser, (req, res) => {
-        BlogPost
+        BlogPosts
         .find()
         .exec
         .then(posts => {
@@ -76,7 +72,7 @@ function closeServer() {
             }
         }
 
-        BlogPost
+        BlogPosts
         .create({
             title: req.body.title,
             content: req.body.content,
@@ -92,7 +88,7 @@ function closeServer() {
 
     //Find an id and remove it.
     app.delete('/blog-posts/:id', jsonParser, (req, res) => {
-        BlogPost
+        BlogPosts
         .findByIdAndRemove(req.params.id) //http://mongoosejs.com/docs/api.html
         .exec()
         .then(() => {
@@ -112,13 +108,6 @@ function closeServer() {
                 console.error(message);
                 return res.status(400).send(message);
             }
-        }
-        if (req.params.id !== req.body.id) {
-            const message = (
-                `Request path id (${req.params.id}) and request body id `
-                `(${req.body.id}) must match`);
-            console.error(message);
-            return res.status(400).send(message);
         }
         console.log(`Updating Blog posts \`${req.params.id}\``);
         const updatedItem = BlogPosts.update({

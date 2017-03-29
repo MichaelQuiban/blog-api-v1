@@ -1,6 +1,23 @@
-const uuid = require('uuid');
+const mongoose = require('mongoose');
 
-function StorageException(message) {
+const blogPostSchema = mongoose.Schema( {
+    "title": {type: String, required: true},
+    "author": {
+        firstName: String,
+        lastName: String,
+    },
+    "content":{type: String, required: true}
+});
+
+const blogPosts = mongoose.model("BlogPosts",blogPostSchema)
+module.exports = {blogPosts};
+
+
+
+
+
+
+/* function StorageException(message) {
     this.message = message;
     this.name = "StorageException";
 }
@@ -57,8 +74,4 @@ function createBlogPostsModel() {
     storage.posts = [];
     return storage;
 }
-
-
-module.exports = {
-    BlogPosts: createBlogPostsModel()
-};
+*/
