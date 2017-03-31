@@ -23,13 +23,12 @@ let server;
 
 
     //When the root of this router is called with GET.. return posts.
-    
-    app.get('/blog-posts', bodyParser, (req, res) => {
+    app.get('/blogPosts', bodyParser, (req, res) => {
         BlogPosts
-        .find()
-        .exec
+        .find() //https://docs.mongodb.com/manual/reference/method/db.collection.find/
+        .exec 
         .then(posts => {
-            res.json(posts.map(post => post.apiRepr()));
+            res.json(blogPosts.map(post => post.apiRepr()));
         })
         .catch(err => {
          console.log(err);
@@ -38,9 +37,21 @@ let server;
         });
     });
 
-    app.post('/blog-posts', bodyParser, (req, res) => {
+    //When the root of this router is called with GET.. return posts.
+    app.get('/posts/:id', (req, res) =>{
+        BlogPosts
+        .findById(req.params.id) //http://mongoosejs.com/docs/api.html
+        .exec()
+        .then(post => res.json(post.apiRepr()))
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({error: ' requested ID could not be gathered at this time.'});
+        });
+    });
+
+    app.post('/blogPosts', bodyParser, (req, res) => {
         //Ensure criteria meets blog posts.
-        const requiredFields = ['id', 'title', 'content', 'author', 'publishDate'];
+        const requiredFields = ['title', 'content', 'author', 'publishDate'];
         for (let i = 0; i < requiredFields.length; i++) {
             const field = requiredFields[i];
             if (!(field in req.body)) {
@@ -54,7 +65,8 @@ let server;
         .create({
             title: req.body.title,
             content: req.body.content,
-            author: req.body.author
+            author: req.body.author,
+            publishDate: req.body.publishDate
         })
         .then(BlogPost => res.status(201).json(blogPost.apiRepr()))
         .catch(err => {
