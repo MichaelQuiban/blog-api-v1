@@ -2,51 +2,29 @@ const express = require('express');
 const mongoose = require ('mongoose');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
-const router = express.Router();
 
+
+//Mongoose internally uses a 'promise-like' object.
+mongoose.Promise = global.Promise;
+
+//Config.js is where we conrol constants for entire app.
 const {DATABASE_URL, PORT} = require('./config');
 const {BlogPosts} = require('./models');
 
-const jsonParser = bodyParser.json();
+//Creates an express appliction.
 const app = express();
+
+app.use(morgan('common')); //https://www.npmjs.com/package/morgan || Standard Apache common log output.
+app.use(bodyParser.json()); //https://github.com/expressjs/body-parser || Body parsing middleware.
 
 let server;
 
-mongoose.Promise = global.Promise;
 
-//This function starts our server and returns a promise.
-function runServer() {
-    const port = process.env.PORT || 8080;
-    return new Promise((resolve, reject) => {
-        server = app.listen(port, () => {
-            console.log(`Your app is listening on port ${port}`);
-            resolve(server);
-        }).on('error', err => {
-            reject(err)
-        });
-    });
-}
 
-function closeServer() {
-    return new Promise((resolve, reject) => {
-        console.log('Closing server');
-        server.close(err => {
-            if (err) {
-                reject(err);
-                // so we don't also call `resolve()`
-                return;
-            }
-            resolve();
-        });
-    });
-}
-
-    //Log the HTTP layer.
-    app.use(morgan('common'));
 
     //When the root of this router is called with GET.. return posts.
     
-    app.get('/blog-posts', jsonParser, (req, res) => {
+    app.get('/blog-posts', bodyParser, (req, res) => {
         BlogPosts
         .find()
         .exec
@@ -60,7 +38,7 @@ function closeServer() {
         });
     });
 
-    app.post('/blog-posts', jsonParser, (req, res) => {
+    app.post('/blog-posts', bodyParser, (req, res) => {
         //Ensure criteria meets blog posts.
         const requiredFields = ['id', 'title', 'content', 'author', 'publishDate'];
         for (let i = 0; i < requiredFields.length; i++) {
@@ -87,7 +65,7 @@ function closeServer() {
     });
 
     //Find an id and remove it.
-    app.delete('/blog-posts/:id', jsonParser, (req, res) => {
+    app.delete('/blog-posts/:id', bodyParser, (req, res) => {
         BlogPosts
         .findByIdAndRemove(req.params.id) //http://mongoosejs.com/docs/api.html
         .exec()
@@ -99,7 +77,7 @@ function closeServer() {
 
     //When put request comes in, ensure fields are meeting min.
     //If there are issues with min. fields, throw a 400 error.
-    app.put('/blog-posts/:id', jsonParser, (req, res) => {
+    app.put('/blog-posts/:id', bodyParser, (req, res) => {
         const requiredFields = ['id', 'title', 'content', 'author', 'publishDate'];
         for (let i = 0; i < requiredFields.length; i++) {
             const field = requiredFields[i];
