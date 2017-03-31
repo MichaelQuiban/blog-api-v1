@@ -19,31 +19,35 @@ app.use(bodyParser.json()); //https://github.com/expressjs/body-parser || Body p
 
 let server;
 
-    //When the root of this router is called with GET.. return posts.
+     //When the root of this router is called with GET.. return posts.
     app.get('/blogPosts', bodyParser, (req, res) => {
         BlogPosts
-        .find() //https://docs.mongodb.com/manual/reference/method/db.collection.find/
-        .exec 
-        .then(posts => {
-            res.json(blogPosts.map(post => post.apiRepr()));
-        })
-        .catch(err => {
-         console.error(err);
-        //If the document isn't found return a 500 error.
-         res.status(500).json({error: ' request could not be fulfilled at this time.'}) // http://www.checkupdown.com/status/E500.html
-        });
+            .find() //https://docs.mongodb.com/manual/reference/method/db.collection.find/
+            .exec
+            .then(posts => {
+                res.json(blogPosts.map(post => post.apiRepr()));
+            })
+            .catch(err => {
+                console.error(err);
+                //If the document isn't found return a 500 error.
+                res.status(500).json({
+                    error: ' request could not be fulfilled at this time.'
+                }) // http://www.checkupdown.com/status/E500.html
+            });
     });
 
     //When the root of this router is called with GET.. return posts.
-    app.get('/posts/:id', (req, res) =>{
+    app.get('/blogPosts/:id', (req, res) => {
         BlogPosts
-        .findById(req.params.id) //http://mongoosejs.com/docs/api.html
-        .exec()
-        .then(post => res.json(post.apiRepr()))
-        .catch(err => {
-            console.error(err);
-            res.status(500).json({error: ' requested ID could not be gathered at this time.'});
-        });
+            .findById(req.params.id) //http://mongoosejs.com/docs/api.html
+            .exec()
+            .then(post => res.json(post.apiRepr()))
+            .catch(err => {
+                console.error(err);
+                res.status(500).json({
+                    error: ' requested ID could not be gathered at this time.'
+                });
+            });
     });
 
     app.post('/blogPosts', bodyParser, (req, res) => {
@@ -59,60 +63,103 @@ let server;
         }
 
         BlogPosts
-        .create({
-            title: req.body.title,
-            content: req.body.content,
-            author: req.body.author,
-            publishDate: req.body.publishDate
-        })
-        .then(blogPost => res.status(201).json(blogPost.apiRepr()))
-        .catch(err => {
-            console.error(err);
-            res.status(500).json({error: 'This could not be fulfilled at this time.'});
-        });
+            .create({
+                title: req.body.title,
+                content: req.body.content,
+                author: req.body.author,
+                publishDate: req.body.publishDate
+            })
+            .then(blogPost => res.status(201).json(blogPost.apiRepr()))
+            .catch(err => {
+                console.error(err);
+                res.status(500).json({
+                    error: 'This could not be fulfilled at this time.'
+                });
+            });
 
     });
 
     //Find an id and remove it.
-    app.delete('/blog-posts/:id', bodyParser, (req, res) => {
+    app.delete('/blogPosts/:id', bodyParser, (req, res) => {
         BlogPosts
-        .findByIdAndRemove(req.params.id) //http://mongoosejs.com/docs/api.html
-        .exec()
-        .then(() => {
-            res.status(204).json({message: 'request completed.'});
-        })
-        .catch(err => {
-            console.error(err);
-        });
+            .findByIdAndRemove(req.params.id) //http://mongoosejs.com/docs/api.html
+            .exec()
+            .then(() => {
+                res.status(204).json({
+                    message: 'request completed.'
+                });
+            })
+            .catch(err => {
+                console.error(err);
+                return res.status(500).json({
+                    error: 'Post removal request could not be fulfilled at this time'
+                });
+            });
     });
 
 
     //When put request comes in, ensure fields are meeting min.
     //If there are issues with min. fields, throw a 400 error.
-    app.put('/blog-posts/:id', bodyParser, (req, res) => {
-        const requiredFields = ['id', 'title', 'content', 'author', 'publishDate'];
-        for (let i = 0; i < requiredFields.length; i++) {
-            const field = requiredFields[i];
-            if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
-                const message = `Path ID and request body id values must match`
-                console.error(message);
-                return res.status(400).send(message);
-            }
-        }
-        console.log(`Updating Blog posts \`${req.params.id}\``);
-        const updatedItem = BlogPosts.update({
-            id: req.params.id,
-            title: req.body.title,
-            content: req.body.content,
-            author: req.body.author,
-            publishDate: req.body.publishDate
-        });
-        console.log(updatedItem);
-        res.status(200).json(updatedItem);
+    app.put('/blogPosts/:id', bodyParser, (req, res) => {
+        if (!(req.params.id && req.body.id === req.body.id)) {
+            const message = `Path ID and request body id values must match`
+            console.error(message);
+            return res.status(400).send(message);
+        };
+    }
+    console.log(`Updating Blog posts \`${req.params.id}\``);
+    const updatedItem = BlogPosts.update({
+        id: req.params.id,
+        title: req.body.title,
+        content: req.body.content,
+        author: req.body.author,
+        publishDate: req.body.publishDate
+    }); console.log(updatedItem); res.status(200).json(updatedItem);
     });
 
-    if (require.main === module) {
-      runServer().catch(err => console.error(err));
-    };    
+    let server;
 
-    module.exports = {app, runServer, closeServer}; 
+    // this function connects to our database, then starts the server.
+    function runServer(databaseUrl = DATABASE_URL, port = PORT) {
+        return new Promise((resolve, reject) => {
+            mongoose.connect(databaseUrl, err => {
+                if (err) {
+                    return reject(err);
+                }
+                server = app.listen(port, () => {
+                        console.log(`Your app is listening on port ${port}`);
+                        resolve();
+                    })
+                    .on('error', err => {
+                        mongoose.disconnect();
+                        reject(err);
+                    });
+            });
+        });
+    }
+
+    // this function closes the server, and returns a promise. we'll
+    function closeServer() {
+        return mongoose.disconnect().then(() => {
+            return new Promise((resolve, reject) => {
+                console.log('Closing server');
+                server.close(err => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    resolve();
+                });
+            });
+        });
+    }
+
+
+    if (require.main === module) {
+        runServer().catch(err => console.error(err));
+    };
+
+    module.exports = {
+        app,
+        runServer,
+        closeServer
+    };
