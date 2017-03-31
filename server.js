@@ -19,9 +19,6 @@ app.use(bodyParser.json()); //https://github.com/expressjs/body-parser || Body p
 
 let server;
 
-
-
-
     //When the root of this router is called with GET.. return posts.
     app.get('/blogPosts', bodyParser, (req, res) => {
         BlogPosts
@@ -31,7 +28,7 @@ let server;
             res.json(blogPosts.map(post => post.apiRepr()));
         })
         .catch(err => {
-         console.log(err);
+         console.error(err);
         //If the document isn't found return a 500 error.
          res.status(500).json({error: ' request could not be fulfilled at this time.'}) // http://www.checkupdown.com/status/E500.html
         });
@@ -44,7 +41,7 @@ let server;
         .exec()
         .then(post => res.json(post.apiRepr()))
         .catch(err => {
-            console.log(err);
+            console.error(err);
             res.status(500).json({error: ' requested ID could not be gathered at this time.'});
         });
     });
@@ -68,9 +65,9 @@ let server;
             author: req.body.author,
             publishDate: req.body.publishDate
         })
-        .then(BlogPost => res.status(201).json(blogPost.apiRepr()))
+        .then(blogPost => res.status(201).json(blogPost.apiRepr()))
         .catch(err => {
-            console.log(err);
+            console.error(err);
             res.status(500).json({error: 'This could not be fulfilled at this time.'});
         });
 
@@ -83,6 +80,9 @@ let server;
         .exec()
         .then(() => {
             res.status(204).json({message: 'request completed.'});
+        })
+        .catch(err => {
+            console.error(err);
         });
     });
 
