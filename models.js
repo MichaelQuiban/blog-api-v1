@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const blogPostSchema = mongoose.Schema( {
     "title": {type: String, required: true},
     "content":{type: String, required: true},
-    "created":{type: Date, default: Date.now}
+    "created":{type: Date, default: Date.now},
     "author": {
         firstName: String,
         lastName: String,
@@ -19,6 +19,7 @@ blogPostSchema.virtual('authorName').get(function() {
 blogPostSchema.virtual('blogInfo').get(function() {
     return `${this.title} ${this.created}`.trim();
 });
+
 
 blogPostSchema.methods.apiRepr = function() {
     return {

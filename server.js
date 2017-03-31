@@ -100,24 +100,47 @@ let server;
 
     //When put request comes in, ensure fields are meeting min.
     //If there are issues with min. fields, throw a 400 error.
-    app.put('/blogPosts/:id', bodyParser, (req, res) => {
+  
+    app.put('/posts/:id', (req, res) => {
         if (!(req.params.id && req.body.id === req.body.id)) {
-            const message = `Path ID and request body id values must match`
-            console.error(message);
-            return res.status(400).send(message);
-        };
-    }
-    console.log(`Updating Blog posts \`${req.params.id}\``);
-    const updatedItem = BlogPosts.update({
-        id: req.params.id,
-        title: req.body.title,
-        content: req.body.content,
-        author: req.body.author,
-        publishDate: req.body.publishDate
-    }); console.log(updatedItem); res.status(200).json(updatedItem);
+            res.status(400).json({
+                error: 'Request path id and request body id values must match'
+            });
+        }
+        const updated = {};
+        const updateableFields = ['title', 'content', 'author'];
+        updateableFields.forEach(field => {
+            if (field in req.body) {
+                updated[field] = req.body[field];
+            }
+        });
+        BlogPosts
+            .findByIdAndUpdate(req.params.id, {
+                $set: updated
+            }, {
+                new: true
+            })
+            .exec()
+            .then(updatedPost => res.status(201).json(updatedPost.apiRepr()))
+            .catch(err => res.status(500).json({
+                message: 'Something went wrong'
+            }));
     });
 
-    let server;
+    
+    app.delete('/:id', (req, res) => {
+      BlogPosts
+        .findByIdAndRemove(req.params.id)
+        .exec()
+        .then(() => {
+          console.log(`Deleted blog post with id \`${req.params.ID}\``);
+          res.status(204).end();
+        });
+    });
+
+    app.use('*', function(req, res) {
+     res.status(404).json({message: 'Not Found'});
+    });
 
     // this function connects to our database, then starts the server.
     function runServer(databaseUrl = DATABASE_URL, port = PORT) {
