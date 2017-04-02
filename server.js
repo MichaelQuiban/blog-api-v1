@@ -3,10 +3,6 @@ const mongoose = require ('mongoose');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 
-
-//Mongoose internally uses a 'promise-like' object.
-mongoose.Promise = global.Promise;
-
 //Config.js is where we conrol constants for entire app.
 const {DATABASE_URL, PORT} = require('./config');
 const {BlogPosts} = require('./models');
@@ -15,17 +11,18 @@ const {BlogPosts} = require('./models');
 const app = express();
 
 app.use(morgan('common')); //https://www.npmjs.com/package/morgan || Standard Apache common log output.
-app.use(bodyParser.json()); //https://github.com/expressjs/body-parser || Body parsing middleware.
+app.use(bodyParser.json());//https://github.com/expressjs/body-parser || Body parsing middleware.
 
-let server;
+//Mongoose internally uses a 'promise-like' object.
+mongoose.Promise = global.Promise;
 
      //When the root of this router is called with GET.. return posts.
-    app.get('/blogPosts', bodyParser, (req, res) => {
+    app.get('/blog-posts', bodyParser, (req, res) => {
         BlogPosts
             .find() //https://docs.mongodb.com/manual/reference/method/db.collection.find/
             .exec
             .then(posts => {
-                res.json(blogPosts.map(post => post.apiRepr()));
+                res.json(post.map(post => post.apiRepr()));
             })
             .catch(err => {
                 console.error(err);
@@ -37,7 +34,7 @@ let server;
     });
 
     //When the root of this router is called with GET.. return posts.
-    app.get('/blogPosts/:id', (req, res) => {
+    app.get('/blog-posts/:id', (req, res) => {
         BlogPosts
             .findById(req.params.id) //http://mongoosejs.com/docs/api.html
             .exec()
@@ -50,7 +47,7 @@ let server;
             });
     });
 
-    app.post('/blogPosts', bodyParser, (req, res) => {
+    app.post('/blog-posts', bodyParser, (req, res) => {
         //Ensure criteria meets blog posts.
         const requiredFields = ['title', 'content', 'author', 'publishDate'];
         for (let i = 0; i < requiredFields.length; i++) {
@@ -80,7 +77,7 @@ let server;
     });
 
     //Find an id and remove it.
-    app.delete('/blogPosts/:id', bodyParser, (req, res) => {
+    app.delete('/blog-posts/:id', bodyParser, (req, res) => {
         BlogPosts
             .findByIdAndRemove(req.params.id) //http://mongoosejs.com/docs/api.html
             .exec()
@@ -101,7 +98,7 @@ let server;
     //When put request comes in, ensure fields are meeting min.
     //If there are issues with min. fields, throw a 400 error.
   
-    app.put('/posts/:id', (req, res) => {
+    app.put('/blog-posts/:id', (req, res) => {
         if (!(req.params.id && req.body.id === req.body.id)) {
             res.status(400).json({
                 error: 'Request path id and request body id values must match'
