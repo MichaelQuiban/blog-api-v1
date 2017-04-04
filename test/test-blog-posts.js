@@ -65,7 +65,7 @@ describe('Blog posts API resources', function() {
 
     //Assure our GET response passes through each hurdle provided below.
     describe('Get endpoint', function() {
-     it ('should return all existing posts', function() {
+     it ('should return all existing posts.', function() {
         let res;
             return chai.request(app)
             .get('/posts')
@@ -80,6 +80,23 @@ describe('Blog posts API resources', function() {
             res.body.should.have.length.of(count);
         });
     });
+
+          it ('Should return posts with correct fields.', function() {
+        let resPost;
+            return chai.request(app)
+            .get('/posts')
+            .then(function(res) {
+              res.body.should.be.a('array');
+              res.should.have.status(200);
+              res.should.be.json;
+              res.body.should.have.length.of.at.least(1);
+          })   
+        res.body.foreach(function(post) {
+            post.should.include.keys('id', 'title', 'content', 'author', 'created');
+            post.should.be.a('object');
+        });
+    });
+     
         return chai.request(app)
             .get('/blog-posts')
             .then(function(res) {
