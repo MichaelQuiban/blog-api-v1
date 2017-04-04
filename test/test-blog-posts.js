@@ -17,6 +17,34 @@ const {DATABASE_URL} = require('../config');
 //Allow the use of syntax available through chai.
 chai.use(chaiHttp);
 
+//Delete the entire data and ensure proper, and clean data.
+function tearDownDb() {
+  return new Promise((resolve, reject) => {
+    console.warn('Removing database...');
+    mongoose.connection.dropDatabase()
+      .then(result => resolve(result))
+      .catch(err => reject(err))
+  });
+}
+
+//Generate seed data using faker, this will create our placeholders.
+function seedBlogPostData() {
+  console.info('Seeding Blog Post data...');
+  const seedData = [];
+  for (let i=1; i<=10; i++) {
+    seedData.push({
+      author: {
+        firstName: faker.name.firstName(),
+        lastName: faker.name.lastName()
+      },
+      title: faker.lorem.sentence(),
+      content: faker.lorem.text()
+    });
+  }
+  // this will return a promise
+  return BlogPost.insertMany(seedData);
+}
+
 describe('Blog Posts', function() {
     // Before our tests run, we activate the server. Our `runServer`
     // function returns a promise, and we return the promise by
