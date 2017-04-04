@@ -45,23 +45,41 @@ function seedBlogPostData() {
   return BlogPost.insertMany(seedData);
 }
 
-describe('Blog Posts', function() {
-    // Before our tests run, we activate the server. Our `runServer`
-    // function returns a promise, and we return the promise by
-    // doing `return runServer`. If we didn't return a promise here,
-    // there's a possibility of a race condition where our tests start
-    // running before our server has started.
+describe('Blog posts API resources', function() {
+
     before(function() {
         return runServer();
     });
 
-    // Close server after these tests run just in case
+    beforeEach(function() {
+        return seedBlogPostData();
+    });
+
+    afterEach(function()  {
+        return tearDownDb();
+    })
+
     after(function() {
         return closeServer();
     });
 
     //Assure our GET response passes through each hurdle provided below.
-    it('should list users on GET', function() {
+    describe('Get endpoint', function() {
+     it ('should return all existing posts', function() {
+        let res;
+            return chai.request(app)
+            .get('/posts')
+            .then(_res => {
+              res = _res;
+              res.should.have.status(200);
+              // otherwise our db seeding didn't work
+              res.body.should.have.length.of.at.least(1);
+              return BlogPost.count();
+          })   
+        .then(count => {
+            res.body.should.have.length.of(count);
+        });
+    });
         return chai.request(app)
             .get('/blog-posts')
             .then(function(res) {
