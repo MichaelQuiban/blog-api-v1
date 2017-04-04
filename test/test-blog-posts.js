@@ -9,6 +9,10 @@ const should = chai.should();
 //We'll be performing our tests in the Server, which gathers from the models.
 const {app,runServer,closeServer} = require('../server');
 const {BlogPost} = require('../models');
+const {TEST_DATABASE_URL} = require('../config');
+const {DATABASE_URL} = require('../config');
+
+
 
 //Allow the use of syntax available through chai.
 chai.use(chaiHttp);
