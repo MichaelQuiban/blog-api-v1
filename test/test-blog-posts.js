@@ -114,7 +114,7 @@ describe('Blog posts API resources', function() {
                                     },
                                     content: faker.lorem.text()
                                 };
-                                .post('/posts')
+                                .post('/blog-posts')
                                     .send(newPost)
                                     .then(function(res) {
                                         res.should.have.status(201);
