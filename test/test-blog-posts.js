@@ -25,6 +25,23 @@ function tearDownDb() {
     });
 }
 
+//Generate random documents in db using faker..
+//This allows us to use placeholder values for author, title, and content.
+function seedBlogPostData() {
+    console.info("Generating blog post data...");
+    const seedData = [];
+    for (let i=1; i<=10; i++) {
+        seedData.push({
+            author: {
+                firstName: faker.name.firstName(),
+                lastName: faker.name.lastName()
+            },
+            title: faker.lorem.sentence(),
+            content: faker.lorem.text()
+        });
+    }
+    return BlogPost.insertMany(seedData);
+}
 describe('Blog Posts', function() {
     // Before our tests run, we activate the server. Our `runServer`
     // function returns a promise, and we return the promise by
