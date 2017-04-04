@@ -94,7 +94,7 @@ describe('Blog posts API resources', function() {
 
               res.body.foreach(function(post) {
                 post.should.include.keys('id', 'title', 'content', 'author', 'created');
-                post.should.be.a('string');
+                post.should.be.a('object');
           })   
               .the
         });
