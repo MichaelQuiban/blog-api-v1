@@ -29,84 +29,115 @@ function tearDownDb() {
 
 //Generate seed data using faker, this will create our placeholders.
 function seedBlogPostData() {
-  console.info('Seeding Blog Post data...');
-  const seedData = [];
-  for (let i=1; i<=10; i++) {
-    seedData.push({
-      author: {
-        firstName: faker.name.firstName(),
-        lastName: faker.name.lastName()
-      },
-      title: faker.lorem.sentence(),
-      content: faker.lorem.text()
-    });
-  }
-  // this will return a promise
-  return BlogPost.insertMany(seedData);
+    console.info('Seeding Blog Post data...');
+    const seedData = [];
+    for (let i = 1; i <= 10; i++) {
+        seedData.push({
+            author: {
+                firstName: faker.name.firstName(),
+                lastName: faker.name.lastName()
+            },
+            title: faker.lorem.sentence(),
+            content: faker.lorem.text()
+        });
+    }
+    // this will return a promise
+    return BlogPost.insertMany(seedData);
 }
 
 describe('Blog posts API resources', function() {
 
-    before(function() {
-        return runServer();
-    });
+            before(function() {
+                return runServer();
+            });
 
-    beforeEach(function() {
-        return seedBlogPostData();
-    });
+            beforeEach(function() {
+                return seedBlogPostData();
+            });
 
-    afterEach(function()  {
-        return tearDownDb();
-    })
+            afterEach(function() {
+                return tearDownDb();
+            })
 
-    after(function() {
-        return closeServer();
-    });
+            after(function() {
+                return closeServer();
+            });
 
-    //Assure our GET response passes through each hurdle provided below.
-    describe('Get endpoint', function() {
-     it ('should return all existing posts.', function() {
-        let res;
-            return chai.request(app)
-            .get('/blog-posts')
-            .then(_res => {
-              res = _res;
-              res.should.have.status(200);
-              // otherwise our db seeding didn't work
-              res.body.should.have.length.of.at.least(1);
-              return BlogPost.count();
-          })   
-        .then(count => {
-            res.body.should.have.length.of(count);
-        });
-    });
+            //Assure our GET response passes through each hurdle provided below.
+            describe('Get endpoint', function() {
+                        it('should return all existing posts.', function() {
+                            let res;
+                            return chai.request(app)
+                                .get('/blog-posts')
+                                .then(_res => {
+                                    res = _res;
+                                    res.should.have.status(200);
+                                    // otherwise our db seeding didn't work
+                                    res.body.should.have.length.of.at.least(1);
+                                    return BlogPost.count();
+                                })
+                                .then(count => {
+                                    res.body.should.have.length.of(count);
+                                });
+                        });
 
-          it ('Should return posts with correct fields.', function() {
-        let resPost;
-            return chai.request(app)
-            .get('/blog-posts')
-            .then(function(res) {
+                        it('Should return posts with correct fields.', function() {
+                            let resPost;
+                            return chai.request(app)
+                                .get('/blog-posts')
+                                .then(function(res) {
 
-              res.body.should.be.a('array');
-              res.should.have.status(200);
-              res.should.be.json;
-              res.body.should.have.length.of.at.least(1);
+                                    res.body.should.be.a('array');
+                                    res.should.have.status(200);
+                                    res.should.be.json;
+                                    res.body.should.have.length.of.at.least(1);
 
-              res.body.foreach(function(post) {
-                post.should.include.keys('id', 'title', 'content', 'author', 'created');
-                post.should.be.a('object');
-          })   
-              .then(post => {
-                 resPost.title.should.equal(post.title);
-                 resPost.content.should.equal(post.content);
-                 resPost.author.should.equal(post.authorName);
-              });
-        });
-    });
-     
-     describe('POST endpoint', function() {
-        
-     })
+                                    res.body.foreach(function(post) {
+                                            post.should.include.keys('id', 'title', 'content', 'author', 'created');
+                                            post.should.be.a('object');
+                                        })
+                                        .then(post => {
+                                            resPost.title.should.equal(post.title);
+                                            resPost.content.should.equal(post.content);
+                                            resPost.author.should.equal(post.authorName);
+                                        });
+                                });
+                        });
+
+                        describe('POST endpoint', function() {
+                            it('should add a new blog post', function() {
+                                const newPost = {
+                                    title: faker.lorem.sentence(),
+                                    author: {
+                                        firstName: faker.name.firstName(),
+                                        lastName: faker.name.lastName(),
+                                    },
+                                    content: faker.lorem.text()
+                                };
+                                .post('/posts')
+                                    .send(newPost)
+                                    .then(function(res) {
+                                        res.should.have.status(201);
+                                        res.should.be.json;
+                                        res.body.should.be.a('object');
+                                        res.body.should.include.keys(
+                                            'id', 'title', 'content', 'author', 'created');
+                                        res.body.title.should.equal(newPost.title);
+                                        // cause Mongo should have created id on insertion
+                                        res.body.id.should.not.be.null;
+                                        res.body.author.should.equal(
+                                            `${newPost.author.firstName} ${newPost.author.lastName}`);
+                                        res.body.content.should.equal(newPost.content);
+                                        return BlogPost.findById(res.body.id).exec();
+                                    })
+                                    .then(function(post) {
+                                        post.title.should.equal(newPost.title);
+                                        post.content.should.equal(newPost.content);
+                                        post.author.firstName.should.equal(newPost.author.firstName);
+                                        post.author.lastName.should.equal(newPost.author.lastName);
+                                    });
+                            })
+                        })
         return chai.request(app)
             .get('/blog-posts')
             .then(function(res) {
@@ -120,6 +151,7 @@ describe('Blog posts API resources', function() {
             });
         done();
     });
+
     //Assure our POST response mimics the template of our body content.
     it('should list users on POST', function(done) {
         const postExample = {
