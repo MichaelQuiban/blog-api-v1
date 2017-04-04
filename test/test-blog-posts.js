@@ -15,6 +15,16 @@ const {TEST_DATABASE_URL} = reqire('../config')
 //Allow the use of syntax available through chai.
 chai.use(chaiHttp);
 
+//Delete the entire database, ensuring clean data.
+function tearDownDb() {
+    return new Promise((resolve, reject) => {
+        console.log('Removing database...');
+        mongoose.connection.dropDatabase()
+        .then(result => resolve(result))
+        .catch(err => reject(err))
+    });
+}
+
 describe('Blog Posts', function() {
     // Before our tests run, we activate the server. Our `runServer`
     // function returns a promise, and we return the promise by
