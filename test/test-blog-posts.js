@@ -162,7 +162,7 @@ describe('Blog posts API resources', function() {
 
                                     });
                                 });
-                            }
+                            });
                         };
                         describe('DELETE endpoint', function() {
                             it('should delete a post by id', function() {
