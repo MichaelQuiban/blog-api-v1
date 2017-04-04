@@ -12,17 +12,19 @@ const app = express();
 
 app.use(morgan('common')); //https://www.npmjs.com/package/morgan || Standard Apache common log output.
 app.use(bodyParser.json());//https://github.com/expressjs/body-parser || Body parsing middleware.
-
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
 //Mongoose internally uses a 'promise-like' object.
 mongoose.Promise = global.Promise;
 
      //When the root of this router is called with GET.. return posts.
-    app.get('/blog-posts', bodyParser, (req, res) => {
+    app.get('/blog-posts',(req, res) => {
         BlogPosts
             .find() //https://docs.mongodb.com/manual/reference/method/db.collection.find/
-            .exec
+            .exec()
             .then(posts => {
-                res.json(post.map(post => post.apiRepr()));
+                res.json(posts.map(post => post.apiRepr()));
             })
             .catch(err => {
                 console.error(err);
@@ -47,7 +49,7 @@ mongoose.Promise = global.Promise;
             });
     });
 
-    app.post('/blog-posts', bodyParser, (req, res) => {
+    app.post('/blog-posts',(req, res) => {
         //Ensure criteria meets blog posts.
         const requiredFields = ['title', 'content', 'author', 'publishDate'];
         for (let i = 0; i < requiredFields.length; i++) {
