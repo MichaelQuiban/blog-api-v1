@@ -9,44 +9,18 @@ const should = chai.should();
 //We'll be performing our tests in the Server, which gathers from the models.
 const {app,runServer,closeServer} = require('../server');
 const {BlogPost} = require('../models');
-const {DATABASE_URL} = require('../config');
-const {TEST_DATABASE_URL} = require('../config')
 
 //Allow the use of syntax available through chai.
 chai.use(chaiHttp);
 
-//Delete the entire database, ensuring clean data.
-function tearDownDb() {
-    return new Promise((resolve, reject) => {
-        console.log('Removing database...');
-        mongoose.connection.dropDatabase()
-        .then(result => resolve(result))
-        .catch(err => reject(err))
-    });
-}
-
-//Generate random documents in db using faker..
-//This allows us to use placeholder values for author, title, and content.
-function seedBlogPostData() {
-    console.info("Generating blog post data...");
-    const seedData = [];
-    for (let i=1; i<=10; i++) {
-        seedData.push({
-            author: {
-                firstName: faker.name.firstName(),
-                lastName: faker.name.lastName()
-            },
-            title: faker.lorem.sentence(),
-            content: faker.lorem.text()
-        });
-    }
-    return BlogPost.insertMany(seedData);
-}
-
 describe('Blog Posts', function() {
-
+    // Before our tests run, we activate the server. Our `runServer`
+    // function returns a promise, and we return the promise by
+    // doing `return runServer`. If we didn't return a promise here,
+    // there's a possibility of a race condition where our tests start
+    // running before our server has started.
     before(function() {
-        return runServer(TEST_DATABASE_URL);
+        return runServer();
     });
 
     // Close server after these tests run just in case
