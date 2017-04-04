@@ -35,19 +35,25 @@ function seedBlogPostData() {
     // this will return a promise
     return BlogPost.insertMany(seedData);
 }
+
 describe('Blog posts API resources', function() {
+
             before(function() {
                 return runServer();
             });
+
             beforeEach(function() {
                 return seedBlogPostData();
             });
+
             afterEach(function() {
                 return tearDownDb();
-            })
+            });
+
             after(function() {
                 return closeServer();
             });
+
             //Assure our GET response passes through each hurdle provided below.
             describe('Get endpoint', function() {
                         it('should return all existing posts.', function() {
