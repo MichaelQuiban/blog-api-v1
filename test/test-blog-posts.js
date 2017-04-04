@@ -96,7 +96,7 @@ describe('Blog posts API resources', function() {
                                      },
                                         content: faker.lorem.text()
                                      };
-                                    .post('/blog-posts')
+                                     post('/blog-posts')
                                     .send(newPost)
                                     .then(function(res) {
 
@@ -181,3 +181,4 @@ describe('Blog posts API resources', function() {
                                 });
                             });
                         });
+                    });
