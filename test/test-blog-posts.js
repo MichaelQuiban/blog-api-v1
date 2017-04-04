@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 //Syntax availability.
 const should = chai.should();
 //We'll be performing our tests in the Server, which gathers from the models.
-const { app, runServer,closeServer} = require('../server');
+const {app, runServer, closeServer} = require('../server');
 const {BlogPost} = require('../models');
 const {TEST_DATABASE_URL} = require('../config');
 const {DATABASE_URL} = require('../config');
@@ -54,7 +54,7 @@ describe('Blog posts API resources', function() {
                             let res;
                             return chai.request(app).get('/blog-posts').then(_res => {
                                 res = _res;
-                                res.should.have.status(200);
+                                res.should.have.status(200); //https://httpstatuses.com/200
                                 // otherwise our db seeding didn't work
                                 res.body.should.have.length.of.at.least(1);
                                 return BlogPost.count();
@@ -66,7 +66,7 @@ describe('Blog posts API resources', function() {
                             let resPost;
                             return chai.request(app).get('/blog-posts').then(function(res) {
                                 res.body.should.be.a('array');
-                                res.should.have.status(200);
+                                res.should.have.status(200); //https://httpstatuses.com/200
                                 res.should.be.json;
                                 res.body.should.have.length.of.at.least(1);
                                 res.body.foreach(function(post) {
@@ -89,7 +89,7 @@ describe('Blog posts API resources', function() {
                                     },
                                     content: faker.lorem.text()
                                 };.post('/blog-posts').send(newPost).then(function(res) {
-                                    res.should.have.status(201);
+                                    res.should.have.status(201); //https://httpstatuses.com/201
                                     res.should.be.json;
                                     res.body.should.be.a('object');
                                     res.body.should.include.keys('id', 'title', 'content', 'author', 'created');
@@ -105,5 +105,50 @@ describe('Blog posts API resources', function() {
                                     post.author.firstName.should.equal(newPost.author.firstName);
                                     post.author.lastName.should.equal(newPost.author.lastName);
                                 });
-                            })
-                        })
+                            });
+                        });
+                        describe('PUT endpoints', function() {
+                                //Get an existing post, make a put request, validate the data.
+                                it('should update fields you send over', function() {
+                                    const updatePost = {
+                                        title: "Cat in the hat!",
+                                        content: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.",
+                                        author: {
+                                            firstName: 'J.K',
+                                            lastName: 'Rowling',
+                                        }
+                                    };
+                                    return BlogPost.findOne().exec().then(post => {
+                                        updatePost.id = post.id;
+                                        return chai.request(app).put(`/blog-posts/${post.id}`).send(updatePost);
+                                    }).then(res => {
+                                        res.should.be.json;
+                                        res.body.should.be.a('object');
+                                        res.should.have.status(201); //https://httpstatuses.com/201
+                                        res.body.title.should.equal(updateData.title);
+                                        res.body.content.should.equal(updateData.content);
+                                        res.body.author.should.equal(`${updateData.author.firstName} ${updateData.author.lastName}`);
+                                        return BlogPost.findById(res.body.id).exec();
+                                    }).then(post => {
+                                        post.title.should.equal(updateData.title);
+                                        post.author.lastName.should.equal(updateData.author.lastName);
+                                        post.content.should.equal(updateData.content);
+                                        post.author.firstName.should.equal(updateData.author.firstName);
+                                    });
+                                });
+                            }
+                        };
+                        describe('DELETE endpoint', function() {
+                            it('should delete a post by id', function() {
+                                let post;
+                                return BlogPost.findOne().exec().then(_post => {
+                                    post = _post;
+                                    return chai.request(app).delete(`/blog-posts/${post.id}`);
+                                }).then(res => {
+                                    res.should.have.status(204); //https://httpstatuses.com/204
+                                    return BlogPost.findById(post.id);
+                                }).then(_post => {
+                                    should.not.exist(_post);
+                                });
+                            });
+                        });
