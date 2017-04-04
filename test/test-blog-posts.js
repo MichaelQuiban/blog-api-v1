@@ -86,14 +86,17 @@ describe('Blog posts API resources', function() {
             return chai.request(app)
             .get('/posts')
             .then(function(res) {
+
               res.body.should.be.a('array');
               res.should.have.status(200);
               res.should.be.json;
               res.body.should.have.length.of.at.least(1);
+
+              res.body.foreach(function(post) {
+                post.should.include.keys('id', 'title', 'content', 'author', 'created');
+                post.should.be.a('string');
           })   
-        res.body.foreach(function(post) {
-            post.should.include.keys('id', 'title', 'content', 'author', 'created');
-            post.should.be.a('object');
+              .the
         });
     });
      
