@@ -10,7 +10,7 @@ const should = chai.should();
 const {app,runServer,closeServer} = require('../server');
 const {BlogPost} = require('../models');
 const {DATABASE_URL} = require('../config');
-const {TEST_DATABASE_URL} = reqire('../config')
+const {TEST_DATABASE_URL} = require('../config')
 
 //Allow the use of syntax available through chai.
 chai.use(chaiHttp);
@@ -42,14 +42,11 @@ function seedBlogPostData() {
     }
     return BlogPost.insertMany(seedData);
 }
+
 describe('Blog Posts', function() {
-    // Before our tests run, we activate the server. Our `runServer`
-    // function returns a promise, and we return the promise by
-    // doing `return runServer`. If we didn't return a promise here,
-    // there's a possibility of a race condition where our tests start
-    // running before our server has started.
+
     before(function() {
-        return runServer();
+        return runServer(TEST_DATABASE_URL);
     });
 
     // Close server after these tests run just in case
