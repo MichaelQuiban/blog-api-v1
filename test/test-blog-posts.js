@@ -68,7 +68,7 @@ describe('Blog posts API resources', function() {
      it ('should return all existing posts.', function() {
         let res;
             return chai.request(app)
-            .get('/posts')
+            .get('/blog-posts')
             .then(_res => {
               res = _res;
               res.should.have.status(200);
@@ -84,7 +84,7 @@ describe('Blog posts API resources', function() {
           it ('Should return posts with correct fields.', function() {
         let resPost;
             return chai.request(app)
-            .get('/posts')
+            .get('/blog-posts')
             .then(function(res) {
 
               res.body.should.be.a('array');
@@ -96,10 +96,17 @@ describe('Blog posts API resources', function() {
                 post.should.include.keys('id', 'title', 'content', 'author', 'created');
                 post.should.be.a('object');
           })   
-              .the
+              .then(post => {
+                 resPost.title.should.equal(post.title);
+                 resPost.content.should.equal(post.content);
+                 resPost.author.should.equal(post.authorName);
+              });
         });
     });
      
+     describe('POST endpoint', function() {
+        
+     })
         return chai.request(app)
             .get('/blog-posts')
             .then(function(res) {
