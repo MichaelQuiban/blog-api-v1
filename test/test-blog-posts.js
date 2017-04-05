@@ -15,7 +15,9 @@ chai.use(chaiHttp);
 function tearDownDb() {
     return new Promise((resolve, reject) => {
         console.warn('Removing database...');
-        mongoose.connection.dropDatabase().then(result => resolve(result)).catch(err => reject(err))
+        mongoose.connection.dropDatabase()
+        .then(result => resolve(result))
+        .catch(err => reject(err))
     });
 }
 //Generate seed data using faker, this will create our placeholders.
@@ -32,7 +34,7 @@ function seedBlogPostData() {
             content: faker.lorem.text()
         });
     }
-    // this will return a promise
+        // this will return a promise
     return BlogPost.insertMany(seedData);
 }
 
