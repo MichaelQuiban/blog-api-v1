@@ -30,9 +30,7 @@ mongoose.Promise = global.Promise;
             .catch(err => {
                 console.error(err);
                 //If the document isn't found return a 500 error.
-                res.status(500).json({
-                    error: ' request could not be fulfilled at this time.'
-                }) // http://www.checkupdown.com/status/E500.html
+                res.status(500).json({error: ' request could not be fulfilled at this time.'}) // http://www.checkupdown.com/status/E500.html
             });
     });
 
@@ -44,9 +42,7 @@ mongoose.Promise = global.Promise;
             .then(post => res.json(post.apiRepr()))
             .catch(err => {
                 console.error(err);
-                res.status(500).json({
-                    error: ' requested ID could not be gathered at this time.'
-                });
+                res.status(500).json({error: ' requested ID could not be gathered at this time.'});
             });
     });
 
@@ -72,12 +68,9 @@ mongoose.Promise = global.Promise;
             .then(blogPost => res.status(201).json(blogPost.apiRepr()))
             .catch(err => {
                 console.error(err);
-                res.status(500).json({
-                    error: 'This could not be fulfilled at this time.'
-                });
+                res.status(500).json({error: 'This could not be fulfilled at this time.'});
             });
-
-    });
+         });
 
     //Find an id and remove it.
     app.delete('/blog-posts/:id', bodyParser, (req, res) => {
@@ -85,17 +78,13 @@ mongoose.Promise = global.Promise;
             .findByIdAndRemove(req.params.id) //http://mongoosejs.com/docs/api.html
             .exec()
             .then(() => {
-                res.status(204).json({
-                    message: 'request completed.'
-                });
+                res.status(204).json({message: 'request completed.'});
             })
             .catch(err => {
                 console.error(err);
-                return res.status(500).json({
-                    error: 'Post removal request could not be fulfilled at this time'
-                });
+                return res.status(500).json({error: 'Post removal request could not be fulfilled at this time'});
             });
-    });
+         });
 
 
     //When put request comes in, ensure fields are meeting min.
@@ -103,9 +92,7 @@ mongoose.Promise = global.Promise;
   
     app.put('/blog-posts/:id', (req, res) => {
         if (!(req.params.id && req.body.id === req.body.id)) {
-            res.status(400).json({
-                error: 'Request path id and request body id values must match'
-            });
+            res.status(400).json({error: 'Request path id and request body id values must match'});
         }
         const updated = {};
         const updateableFields = ['title', 'content', 'author'];
@@ -115,16 +102,10 @@ mongoose.Promise = global.Promise;
             }
         });
         BlogPosts
-            .findByIdAndUpdate(req.params.id, {
-                $set: updated
-            }, {
-                new: true
-            })
+            .findByIdAndUpdate(req.params.id, {$set: updated}, {new: true})
             .exec()
             .then(updatedPost => res.status(201).json(updatedPost.apiRepr()))
-            .catch(err => res.status(500).json({
-                message: 'Something went wrong'
-            }));
+            .catch(err => res.status(500).json({message: 'Something went wrong'}));
     });
 
     
@@ -142,6 +123,8 @@ mongoose.Promise = global.Promise;
      res.status(404).json({message: 'Not Found'});
     });
 
+    let server;
+
     // this function connects to our database, then starts the server.
     function runServer(databaseUrl = DATABASE_URL, port = PORT) {
         return new Promise((resolve, reject) => {
@@ -157,9 +140,9 @@ mongoose.Promise = global.Promise;
                         mongoose.disconnect();
                         reject(err);
                     });
+                });
             });
-        });
-    }
+        }
 
     // this function closes the server, and returns a promise. we'll
     function closeServer() {
