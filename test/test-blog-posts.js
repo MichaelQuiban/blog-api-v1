@@ -60,8 +60,7 @@ describe('Blog posts API resources', function() {
             describe('Get endpoint', function() {
                         it('should return all existing posts.', function() {
                             let res;
-                            return chai
-                            .request(app)
+                            return chai.request(app)
                             .get('/blog-posts')
                             .then(_res => {
                                 res = _res;
@@ -69,13 +68,16 @@ describe('Blog posts API resources', function() {
                                 // otherwise our db seeding didn't work
                                 res.body.should.have.length.of.at.least(1);
                                 return BlogPost.count();
-                            }).then(count => {
+                            })
+                            .then(count => {
                                 res.body.should.have.length.of(count);
                             });
                         });
                         it('Should return posts with correct fields.', function() {
                             let resPost;
-                            return chai.request(app).get('/blog-posts').then(function(res) {
+                            return chai.request(app)
+                            .get('/blog-posts')
+                            .then(function(res) {
                                 res.body.should.be.a('array');
                                 res.should.have.status(200); //https://httpstatuses.com/200
                                 res.should.be.json;
@@ -84,16 +86,18 @@ describe('Blog posts API resources', function() {
                                 res.body.foreach(function(post) {
                                     post.should.include.keys('id', 'title', 'content', 'author', 'created');
                                     post.should.be.a('object');
-                                })
+                                });
+                                resPost = res.body[0];
+                                return BlogPost.findById(resPost.id).exec();
+                             })
                                 .then(post => {
-
                                     resPost.title.should.equal(post.title);
                                     resPost.content.should.equal(post.content);
                                     resPost.author.should.equal(post.authorName);
-
                                 });
                             });
                         });
+
                         describe('POST endpoint', function() {
                             it('should add a new blog post', function() {
                                 const newPost = {
@@ -104,6 +108,7 @@ describe('Blog posts API resources', function() {
                                      },
                                         content: faker.lorem.text()
                                      };
+                                     return chai.request(app)
                                      post('/blog-posts')
                                     .send(newPost)
                                     .then(function(res) {
@@ -146,9 +151,11 @@ describe('Blog posts API resources', function() {
                                     .findOne()
                                     .exec()
                                     .then(post => {
-                                        updatePost.id = post.id;
+                                        updateData.id = post.id;
 
-                                        return chai.request(app).put(`/blog-posts/${post.id}`).send(updatePost);
+                                        return chai.request(app)
+                                        .put(`/blog-posts/${post.id}`)
+                                        .send(updateData);
                                     })
                                     .then(res => {
 
@@ -164,14 +171,14 @@ describe('Blog posts API resources', function() {
                                     .then(post => {
 
                                         post.title.should.equal(updateData.title);
-                                        post.author.lastName.should.equal(updateData.author.lastName);
                                         post.content.should.equal(updateData.content);
                                         post.author.firstName.should.equal(updateData.author.firstName);
+                                        post.author.lastName.should.equal(updateData.author.lastName);
 
                                     });
                                 });
                             });
-                        });
+
                         describe('DELETE endpoint', function() {
                             it('should delete a post by id', function() {
                                 let post;
@@ -181,10 +188,12 @@ describe('Blog posts API resources', function() {
                                 .then(_post => {
                                     post = _post;
                                     return chai.request(app).delete(`/blog-posts/${post.id}`);
-                                }).then(res => {
+                                })
+                                .then(res => {
                                     res.should.have.status(204); //https://httpstatuses.com/204
                                     return BlogPost.findById(post.id);
-                                }).then(_post => {
+                                })
+                                .then(_post => {
                                     should.not.exist(_post);
                                 });
                             });
