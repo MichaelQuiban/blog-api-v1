@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const blogPostSchema = mongoose.Schema( {
     "title": {type: String, required: true},
     "content":{type: String, required: true},
-    "created":{type: Date, default: Date.now},
+    "created":{type: Date, default: Date.now()},
     "author": {
         firstName: String,
         lastName: String,
@@ -26,12 +26,13 @@ blogPostSchema.methods.apiRepr = function() {
         id: this._id,
         title: this.blogInfo,
         content: this.content,
-        author: this.authorName
-    }
-};
+        author: this.authorName,
+        created: this.created
+    };
+}
 
 
-const BlogPosts = mongoose.model("BlogPosts",blogPostSchema)
+const BlogPosts = mongoose.model("BlogPosts", blogPostSchema)
 module.exports = {BlogPosts};
 
 

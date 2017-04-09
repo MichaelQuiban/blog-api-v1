@@ -2,15 +2,19 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const faker = require('faker');
 const mongoose = require('mongoose');
+
 //Syntax availability.
 const should = chai.should();
+
 //We'll be performing our tests in the Server, which gathers from the models.
 const {app, runServer, closeServer} = require('../server');
-const {BlogPost} = require('../models');
+const {BlogPosts} = require('../models');
 const {DATABASE_URL} = require('../config');
+
 //Allow the use of syntax available through chai.
 chai.use(chaiHttp);
-//Delete the entire data and ensure proper, and clean data.
+
+//Delete the entire database and ensure proper, clean data.
 function tearDownDb() {
     return new Promise((resolve, reject) => {
         console.warn('Removing database...');
@@ -19,6 +23,7 @@ function tearDownDb() {
         .catch(err => reject(err))
     });
 }
+
 //Generate seed data using faker, this will create our placeholders.
 function seedBlogPostData() {
     console.info('Seeding Blog Post data...');
@@ -34,7 +39,7 @@ function seedBlogPostData() {
         });
     }
         // this will return a promise
-    return BlogPost.insertMany(seedData);
+    return BlogPosts.insertMany(seedData);
 }
 
 describe('Blog posts API resources', function() {
@@ -66,7 +71,7 @@ describe('Blog posts API resources', function() {
                                 res.should.have.status(200); //https://httpstatuses.com/200
                                 // otherwise our db seeding didn't work
                                 res.body.should.have.length.of.at.least(1);
-                                return BlogPost.count();
+                                return BlogPosts.count();
                             })
                             .then(count => {
                                 res.body.should.have.length.of(count);
@@ -82,12 +87,12 @@ describe('Blog posts API resources', function() {
                                 res.should.be.json;
                                 res.body.should.have.length.of.at.least(1);
 
-                                res.body.foreach(function(post) {
+                                res.body.forEach(function(post) {
                                     post.should.include.keys('id', 'title', 'content', 'author', 'created');
                                     post.should.be.a('object');
                                 });
                                 resPost = res.body[0];
-                                return BlogPost.findById(resPost.id).exec();
+                                return BlogPosts.findById(resPost.id).exec();
                              })
                                 .then(post => {
                                     resPost.title.should.equal(post.title);
@@ -123,7 +128,7 @@ describe('Blog posts API resources', function() {
                                     res.body.author.should.equal(`${newPost.author.firstName} ${newPost.author.lastName}`);
                                     res.body.content.should.equal(newPost.content);
 
-                                    return BlogPost.findById(res.body.id).exec();
+                                    return BlogPosts.findById(res.body.id).exec();
                                 })
                                     .then(function(post) {
 
@@ -146,33 +151,33 @@ describe('Blog posts API resources', function() {
                                             lastName: 'Rowling',
                                         }
                                     };
-                                    return BlogPost
+                                    return BlogPosts
                                     .findOne()
                                     .exec()
                                     .then(post => {
-                                        updateData.id = post.id;
+                                        updatePost.id = post.id;
 
                                         return chai.request(app)
                                         .put(`/blog-posts/${post.id}`)
-                                        .send(updateData);
+                                        .send(updatePost);
                                     })
                                     .then(res => {
 
                                         res.should.be.json;
                                         res.body.should.be.a('object');
                                         res.should.have.status(201); //https://httpstatuses.com/201
-                                        res.body.title.should.equal(updateData.title);
-                                        res.body.content.should.equal(updateData.content);
-                                        res.body.author.should.equal(`${updateData.author.firstName} ${updateData.author.lastName}`);
+                                        res.body.title.should.equal(updatePost.title);
+                                        res.body.content.should.equal(updatePost.content);
+                                        res.body.author.should.equal(`${updatePost.author.firstName} ${updatePost.author.lastName}`);
 
-                                        return BlogPost.findById(res.body.id).exec();
+                                        return BlogPosts.findById(res.body.id).exec();
                                     })
                                     .then(post => {
 
-                                        post.title.should.equal(updateData.title);
-                                        post.content.should.equal(updateData.content);
-                                        post.author.firstName.should.equal(updateData.author.firstName);
-                                        post.author.lastName.should.equal(updateData.author.lastName);
+                                        post.title.should.equal(updatePost.title);
+                                        post.content.should.equal(updatePost.content);
+                                        post.author.firstName.should.equal(updatePost.author.firstName);
+                                        post.author.lastName.should.equal(updatePost.author.lastName);
 
                                     });
                                 });
@@ -181,7 +186,7 @@ describe('Blog posts API resources', function() {
                         describe('DELETE endpoint', function() {
                             it('should delete a post by id', function() {
                                 let post;
-                                return BlogPost
+                                return BlogPosts
                                 .findOne()
                                 .exec()
                                 .then(_post => {
@@ -190,7 +195,7 @@ describe('Blog posts API resources', function() {
                                 })
                                 .then(res => {
                                     res.should.have.status(204); //https://httpstatuses.com/204
-                                    return BlogPost.findById(post.id);
+                                    return BlogPosts.findById(post.id);
                                 })
                                 .then(_post => {
                                     should.not.exist(_post);
